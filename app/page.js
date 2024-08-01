@@ -2,13 +2,13 @@
 import Image from "next/image";
 import {useState, useEffect} from 'react';
 import {firestore} from '@/firebase'
-import {Box, Stack, TextField, Typography, Modal} from '@mui/material';
-import { addDoc, deleteDoc, query, collection, getDocs } from "firebase/firestore";
+import {Box, Stack, TextField, Typography, Modal, Button} from '@mui/material';
+import { addDoc, deleteDoc, query, collection, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
 
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState("")
 
   const updateInventory = async () => {
@@ -66,6 +66,7 @@ export default function Home() {
       height = "100vh"
       display= "flex"
       justifyContent= "center"
+      flexDirection= "column"
       alignItems= "center"
       gap = {2}
       >
@@ -88,19 +89,54 @@ export default function Home() {
         >
         <Typography variant="h6"> Add Item </Typography>
         <Stack width = "100%" direction = "row" spacing  = {2}>
-        <TextField>
-
-        </TextField>
-
+        <TextField
+          variant = 'outlined'
+          fullWidth
+          value = {itemName}
+          onChange = {(e) => {
+            setItemName(e.target.value)
+            
+          }
+        }     
+        />
+        <Button variant = "outlined"
+        onClick = {() =>{
+          addItem(itemName)
+          setItemName('')
+          handleClose()
+        }}
+        > Add </Button>
         </Stack>
-
-
-
         </Box>
       </Modal>
-      <Typography variant = 'h1'>
-        Inventory Management
-      </Typography>
+      <Button variant = "contained" onClick ={() => {
+        handleOpen()
+      }}> Add New Item </Button>
+   
+      <Box border = "1px solid #333">
+        <Box width = "800px" display = "flex" height = "100px" bgcolor="#ADD8E6" alignItems= "center" justifyContent= "center">
+        <Typography variant = 'h2' color = "#333"> Inventory Items </Typography> 
+        
+        </Box>
+        <Stack width = "800px" height = "300px" spacing = {2} overflow = "auto">
+          {inventory.map(({name, quantity}) => (
+              <Box key = {name} width = "100%" minHeight= "150px" display = "flex" alignItems = "center" justifyContent="space-between" bgcolor="#f0f0f0" padding={5}>
+              <Typography variant = 'h3' color = '#333' textAlign='center'> {name.charAt(0).toUpperCase() + name.slice(1)} </Typography>
+              <Typography variant = 'h3' color = '#333' textAlign='center'> {quantity} </Typography>
+              <Stack direction = "row" spacing = {2}>
+              <Button variant = "contained" onClick = {() => {
+                addItem(name)
+              }}> Add </Button>
+              <Button variant = "contained" onClick = {() => {
+                removeItem(name)
+              }}> Remove</Button></Stack>
+              </Box>
+              
+              
+            ))}
+
+        </Stack>
+        </Box>
       </Box>
 
   )
@@ -121,3 +157,8 @@ export default function Home() {
 // }
 
 // )}
+
+
+   {/* <Typography variant = 'h1'>
+        Inventory Management
+      </Typography> */}
