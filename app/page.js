@@ -3,13 +3,16 @@ import Image from "next/image";
 import {useState, useEffect} from 'react';
 import {firestore} from '@/firebase'
 import {Box, Stack, TextField, Typography, Modal, Button} from '@mui/material';
-import { addDoc, deleteDoc, query, collection, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
+import { addDoc, deleteDoc, where, query, collection, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
+import SearchIcon from '@mui/icons-material/Search';
 
 
 export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
   const [itemName, setItemName] = useState("")
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchItem, setSearchItems] = useState([]);
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'))
@@ -54,6 +57,33 @@ export default function Home() {
     await updateInventory()
   } 
 
+  const searchItems = async (queryStr) => {
+    try {
+      console.log("Search Query String:", queryStr);
+  
+      // Fetch all documents in the collection
+      const snapshot = await getDocs(collection(firestore, 'inventory'));
+      const searchResults = [];
+  
+      // Filter documents by matching document ID
+      snapshot.forEach((doc) => {
+        const docId = doc.id;
+        if (docId.toLowerCase().includes(queryStr.toLowerCase())) {
+          searchResults.push({
+            name: docId,
+            ...doc.data(),
+          });
+        }
+      });
+  
+      console.log("Search Results:", searchResults);
+      setInventory(searchResults);
+    } catch (error) {
+      console.error("Error searching items:", error);
+    }
+  };
+  
+
   useEffect(() => {
     updateInventory()
   }, [])
@@ -84,7 +114,7 @@ export default function Home() {
         flexDirection= "column"
         gap = {3}
         sx = {{
-           transform: "translate(-50%, -50%)"
+        transform: "translate(-50%, -50%)"
         }}
         >
         <Typography variant="h6"> Add Item </Typography>
@@ -109,15 +139,31 @@ export default function Home() {
         </Stack>
         </Box>
       </Modal>
-      <Button variant = "contained" onClick ={() => {
-        handleOpen()
-      }}> Add New Item </Button>
-   
+      
       <Box border = "1px solid #333">
         <Box width = "800px" display = "flex" height = "100px" bgcolor="#ADD8E6" alignItems= "center" justifyContent= "center">
+          <Stack>
         <Typography variant = 'h2' color = "#333"> Inventory Items </Typography> 
-        
+        </Stack>
         </Box>
+        <Box display="flex" height = "100px" justifyContent="space-between" alignItems="center"  width = "780px" margin="0 auto">
+          <SearchIcon sx={{ color: 'blue', fontSize: 35, marginRight: 1, marginLeft:1}}/>
+          <TextField variant="outlined" placeholder="Search Items" size = "small" sx={{ flexGrow: 1, marginRight: 2 }} value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              console.log("Updated Search Query:", e.target.value); // Debugging line
+            }}  />
+          <Stack  direction = "row" spacing = {2} >
+            <Button variant = "contained" onClick ={() => {
+              searchItems(searchQuery);
+              console.log(inventory)
+              console.log("Search Query on Button Click:", searchQuery); // Debugging line
+            }}> Search </Button>
+            <Button variant = "contained" onClick ={() => {
+              handleOpen()
+            }}> Add New Item </Button>
+          </Stack>
+      </Box>
         <Stack width = "800px" height = "300px" spacing = {2} overflow = "auto">
           {inventory.map(({name, quantity}) => (
               <Box key = {name} width = "100%" minHeight= "150px" display = "flex" alignItems = "center" justifyContent="space-between" bgcolor="#f0f0f0" padding={5}>
