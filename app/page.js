@@ -2,7 +2,7 @@
 import Image from "next/image";
 import {useState, useEffect} from 'react';
 import {firestore} from '@/firebase'
-import {Box, Stack, TextField, Typography, Modal, Button} from '@mui/material';
+import {Box, Stack, TextField, Typography, Modal, Button, Close} from '@mui/material';
 import { addDoc, deleteDoc, where, query, collection, getDocs, doc, getDoc, setDoc} from "firebase/firestore";
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -13,6 +13,7 @@ export default function Home() {
   const [itemName, setItemName] = useState("")
   const [searchQuery, setSearchQuery] = useState("")
   const [searchItem, setSearchItems] = useState([]);
+  const [isSearching, setIsSearching] = useState (false)
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, 'inventory'))
@@ -36,7 +37,12 @@ export default function Home() {
       } else{
         await setDoc(docRef,  {quantity: 1})
       }
-    await updateInventory()
+
+    if(isSearching){
+      searchItems(searchQuery)
+    } else {
+      await updateInventory()
+    }
   } 
 
   const removeItem = async (item) => {
@@ -52,10 +58,15 @@ export default function Home() {
         await setDoc(docRef,{quantity: quantity - 1})
       }
 
-
     }
-    await updateInventory()
+    if(isSearching){
+      searchItems(searchQuery)
+    } else {
+      await updateInventory()
+    }
   } 
+
+  
 
   const searchItems = async (queryStr) => {
     try {
@@ -64,7 +75,7 @@ export default function Home() {
       // Fetch all documents in the collection
       const snapshot = await getDocs(collection(firestore, 'inventory'));
       const searchResults = [];
-  
+      setIsSearching(true);
       // Filter documents by matching document ID
       snapshot.forEach((doc) => {
         const docId = doc.id;
@@ -82,6 +93,12 @@ export default function Home() {
       console.error("Error searching items:", error);
     }
   };
+
+  const backButton = async () =>{
+    updateInventory()
+    setIsSearching(false); 
+    setSearchQuery("")
+  }
   
 
   useEffect(() => {
@@ -92,6 +109,7 @@ export default function Home() {
   const handleClose = () => setOpen(false)
 
   return (
+      
       <Box width = "100vw"
       height = "100vh"
       display= "flex"
@@ -100,13 +118,14 @@ export default function Home() {
       alignItems= "center"
       gap = {2}
       >
+        
       <Modal open = {open} onClose = {handleClose}>
         <Box 
         position= "absolute"
         top = "50%"
         left = "50%"
         width = {400}
-        bgcolor= "white"
+        bgcolor= "black"
         border = "2px solid #000"
         boxShadow = {24}
         p ={4}
@@ -141,10 +160,12 @@ export default function Home() {
       </Modal>
       
       <Box border = "1px solid #333">
-        <Box width = "800px" display = "flex" height = "100px" bgcolor="#ADD8E6" alignItems= "center" justifyContent= "center">
-          <Stack>
-        <Typography variant = 'h2' color = "#333"> Inventory Items </Typography> 
-        </Stack>
+        <Box width = "800px" display = "flex" height = "100px" bgcolor="#ADD8E6" alignItems= "center" justifyContent= "space-between" padding="0 16px">
+          <Stack direction = "row" spacing = {2} >
+          {isSearching && (<Button  variant = "outlined" sx={{ color: '#000', height: '40px', top: '10px', borderColor: '#000', '&:hover': { borderColor: '#000', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}  onClick = {() =>{backButton() }}> Back </Button>)}
+          <Typography variant = 'h2' color = "#333" sx={{ position: 'absolute', left: '50%', top: '11%' , transform: 'translateX(-50%)'}}> Inventory Items </Typography> 
+          </Stack>
+          
         </Box>
         <Box display="flex" height = "100px" justifyContent="space-between" alignItems="center"  width = "780px" margin="0 auto">
           <SearchIcon sx={{ color: 'blue', fontSize: 35, marginRight: 1, marginLeft:1}}/>
