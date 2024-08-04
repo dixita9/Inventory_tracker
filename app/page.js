@@ -125,7 +125,7 @@ export default function Home() {
         top = "50%"
         left = "50%"
         width = {400}
-        bgcolor= "black"
+        bgcolor= "#fff"
         border = "2px solid #000"
         boxShadow = {24}
         p ={4}
@@ -160,16 +160,16 @@ export default function Home() {
       </Modal>
       
       <Box border = "1px solid #333">
-        <Box width = "800px" display = "flex" height = "100px" bgcolor="#ADD8E6" alignItems= "center" justifyContent= "space-between" padding="0 16px">
+        <Box width = "800px" display = "flex" height = "100px" bgcolor="#FF7F3E" alignItems= "center" justifyContent= "space-between" padding="0 16px">
           <Stack direction = "row" spacing = {2} >
-          {isSearching && (<Button  variant = "outlined" sx={{ color: '#000', height: '40px', top: '10px', borderColor: '#000', '&:hover': { borderColor: '#000', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}  onClick = {() =>{backButton() }}> Back </Button>)}
-          <Typography variant = 'h2' color = "#333" sx={{ position: 'absolute', left: '50%', top: '11%' , transform: 'translateX(-50%)'}}> Inventory Items </Typography> 
+          {isSearching && searchQuery && (<Button  variant = "outlined" sx={{ color: '#604CC3', height: '40px', top: '10px', borderColor: '#604CC3', '&:hover': { borderColor: '#604CC3', backgroundColor: 'rgba(0, 0, 0, 0.04)'}}}  onClick = {() =>{backButton() }}> Back </Button>)}
+          <Typography variant = 'h2' color = "#fff" sx={{ position: 'absolute', left: '50%', top: '11%' , transform: 'translateX(-50%)'}}> Inventory Items </Typography> 
           </Stack>
           
         </Box>
         <Box display="flex" height = "100px" justifyContent="space-between" alignItems="center"  width = "780px" margin="0 auto">
-          <SearchIcon sx={{ color: 'blue', fontSize: 35, marginRight: 1, marginLeft:1}}/>
-          <TextField variant="outlined" placeholder="Search Items" size = "small" sx={{ flexGrow: 1, marginRight: 2 }} value={searchQuery}
+          <SearchIcon sx={{ color: '#604CC3', fontSize: 35, marginRight: 1, marginLeft:1}}/>
+          <TextField variant="outlined" placeholder="Search Items" size = "small" sx={{ flexGrow: 1, marginRight: 2}} value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
               console.log("Updated Search Query:", e.target.value); // Debugging line
@@ -185,11 +185,11 @@ export default function Home() {
             }}> Add New Item </Button>
           </Stack>
       </Box>
-        <Stack width = "800px" height = "300px" spacing = {2} overflow = "auto">
+        <Stack width = "800px" height = "300px" spacing = {2} overflow = "auto" >
           {inventory.map(({name, quantity}) => (
-              <Box key = {name} width = "100%" minHeight= "150px" display = "flex" alignItems = "center" justifyContent="space-between" bgcolor="#f0f0f0" padding={5}>
-              <Typography variant = 'h3' color = '#333' textAlign='center'> {name.charAt(0).toUpperCase() + name.slice(1)} </Typography>
-              <Typography variant = 'h3' color = '#333' textAlign='center'> {quantity} </Typography>
+              <Box key = {name} width = "100%" height= "10px" display = "flex" alignItems = "center" justifyContent="space-between" bgcolor="#FFF6E9" padding={4}>
+              <Typography variant = 'h5' color = '#000' textAlign='center'> {name.charAt(0).toUpperCase() + name.slice(1)} </Typography>
+              <Typography variant = 'h5'color = '#000' textAlign='center'> {quantity} </Typography>
               <Stack direction = "row" spacing = {2}>
               <Button variant = "contained" onClick = {() => {
                 addItem(name)
